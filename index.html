@@ -1,32 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Vite + Lit + TS</title>
+    <link rel="stylesheet" href="./src/index.css" />
+    <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
-    <div id="app">
-      <div>
-        <button id="generateOffer">Generate Offer</button>
-      </div>
-      <div id="yourOffer"></div>
-      <div>
-        <input type="radio" name="type" value="answer" checked /> answer
-        <input type="radio" name="type" value="offer" /> offer
-      </div>
-      <textarea id="answer"></textarea>
-      <button id="sendAnswer">connect</button>
-
-      <div>
-        <div id="chatWrapper">
-          <div id="chat"></div>
-          <input type="text" id="chatText" />
-          <button id="sendMessage">send</button>
-        </div>
-      </div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
+    <bell-main></bell-main>
   </body>
 </html>
