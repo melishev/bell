@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,26 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div>
+        <button id="generateOffer">Generate Offer</button>
+      </div>
+      <div id="yourOffer"></div>
+      <div>
+        <input type="radio" name="type" value="answer" checked /> answer
+        <input type="radio" name="type" value="offer" /> offer
+      </div>
+      <textarea id="answer"></textarea>
+      <button id="sendAnswer">connect</button>
+
+      <div>
+        <div id="chatWrapper">
+          <div id="chat"></div>
+          <input type="text" id="chatText" />
+          <button id="sendMessage">send</button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
