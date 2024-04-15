@@ -12,7 +12,6 @@ export class View extends LitElement {
   
   updated(changedProperties: Map<string | number | symbol, unknown>) {
     super.updated(changedProperties);
-    console.log('here')
     if (changedProperties.has('client') && this.client?.stream) {
       if (this.videoEl) {
         this.videoEl.srcObject = this.client.stream;

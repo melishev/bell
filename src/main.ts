@@ -11,8 +11,8 @@ import { Client } from "./types";
 export class Main extends LitElement {
   @state()
   private _clients: Client[] = [
-    { id: crypto.randomUUID(), name: 'Leonardo', stream: null },
-    { id: crypto.randomUUID(), name: 'Donatello', stream: null },
+    { id: crypto.randomUUID(), name: 'Leonardo' },
+    { id: crypto.randomUUID(), name: 'Donatello' },
   ]
 
   private async _turnViewerVideo() {
@@ -24,8 +24,8 @@ export class Main extends LitElement {
           height: 720,
         }
       });
-      this._clients[0].stream = stream
-      // this._clients[0].id = crypto.randomUUID()
+      this._clients[0] = { ...this._clients[0], stream }
+      this.requestUpdate()
     } catch (e) {
       console.log('🙅🏻‍♂️')
     }
@@ -35,8 +35,8 @@ export class Main extends LitElement {
     return html`
       <button @click=${this._turnViewerVideo}>Turn on my camera</button>
 
-      <div style="display: flex; flex-wrap: wrap;">
-        ${repeat(this._clients, (client) => client.id + client.stream?.id, (client) => html`
+      <div style="display: flex">
+        ${repeat(this._clients, (client) => client.id, (client) => html`
           <my-view .client=${client}></my-view>
         `)}
       </div>
