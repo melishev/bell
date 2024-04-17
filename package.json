@@ -7,14 +7,23 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "type:check": "tsc"
+    "type:check": "tsc",
+    "lint:check": "eslint .",
+    "format:check": "prettier . --check"
   },
   "dependencies": {
     "lit": "^3.1.2"
   },
   "devDependencies": {
+    "@eslint/js": "^8.0.0",
     "@vitejs/plugin-basic-ssl": "^1.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-wc": "^2.1.0",
+    "globals": "^15.0.0",
+    "prettier": "3.2.5",
     "typescript": "^5.2.2",
+    "typescript-eslint": "^7.7.0",
     "vite": "^5.2.0"
   }
 }
