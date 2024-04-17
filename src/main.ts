@@ -1,118 +1,89 @@
-import "./style.css";
-//@ts-ignore
-import freeice from "freeice";
+import { LitElement, html } from "lit";
+import { customElement, query, state } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 
-const answerInput = document.getElementById("answer");
-const connectButton = document.getElementById("sendAnswer");
-const offerContainer = document.getElementById("yourOffer") as HTMLElement;
-const generateOfferButton = document.getElementById("generateOffer");
-const sendMessage = document.getElementById("sendMessage");
-const inputText = document.getElementById("chatText");
-const chat = document.getElementById("chat");
+import './components/view'
+import './components/webRTC'
+import './components/stats'
+import './components/chat'
 
-//@ts-ignore
-const messages = [];
+import { Client } from "./types";
 
-const peerConnection = new RTCPeerConnection({ iceServers: freeice() });
-// @ts-ignore
-let dataChannel;
+@customElement('bell-main')
+export class Main extends LitElement {
+  @state()
+  private _clients: Client[] = [
+    { id: crypto.randomUUID(), name: 'Leonardo' },
+    { id: crypto.randomUUID(), name: 'Donatello' },
+  ]
 
-generateOfferButton?.addEventListener("click", async (event) => {
-  event.preventDefault();
-
-  dataChannel = peerConnection.createDataChannel("test");
-  dataChannel.onopen = () => {
-    console.log("channel open");
-  };
-  dataChannel.onmessage = (e) => {
-    console.log("message:", e.data);
-    messages.push(e.data);
-    render();
-  };
-
-  // @ts-ignore
-  peerConnection.onicecandidate = () => {
-    console.log("offer token");
-    console.log(JSON.stringify(peerConnection.localDescription));
-
-    offerContainer.innerText = JSON.stringify(peerConnection.localDescription);
-  };
-
-  const offer = await peerConnection.createOffer();
-
-  peerConnection.setLocalDescription(offer);
-});
-
-connectButton?.addEventListener("click", async (event) => {
-  event.preventDefault();
-
-  //@ts-ignore
-  const token = answerInput.value;
-
-  // @ts-ignore
-  const typeToken = document.querySelector('input[name="type"]:checked').value;
-  if (typeToken === "offer") {
-    peerConnection
-      .setRemoteDescription(new RTCSessionDescription(JSON.parse(token)))
-      .catch((e) => console.log(e));
-
-    // @ts-ignore
-    peerConnection.onicecandidate = () => {
-      console.log("answer token");
-      console.log(JSON.stringify(peerConnection.localDescription));
-
-      offerContainer.innerText = JSON.stringify(
-        peerConnection.localDescription
-      );
-    };
-
-    peerConnection.ondatachannel = (e) => {
-      dataChannel = e.channel;
-      dataChannel.onopen = () => {
-        console.log("channel open");
-      };
-      dataChannel.onmessage = (e) => {
-        console.log("message:", e.data);
-        messages.push(e.data);
-        render();
-      };
-    };
-
-    //@ts-ignore
-    console.log(dataChannel);
-
-    const answer = await peerConnection.createAnswer();
-
-    peerConnection.setLocalDescription(answer);
-  } else {
-    peerConnection.setRemoteDescription(
-      new RTCSessionDescription(JSON.parse(token))
-    );
-  }
-});
-
-sendMessage?.addEventListener("click", () => {
-  // @ts-ignore
-  const text = inputText.value;
-
-  messages.push(text);
-
-  // @ts-ignore
-  dataChannel.send(text);
-
-  //@ts-ignore
-  inputText.value = "";
-
-  render();
-});
-
-function render() {
-  let result = "";
-  // @ts-ignore
-  messages.forEach((msg) => {
-    result += `<div>${msg}</div>`;
+  @state()
+  private _peerConnection = new RTCPeerConnection({
+    iceServers: [
+      { urls: "TURN:freeturn.net:3478", username: "free", credential: "free" }
+    ]
   });
 
-  //@ts-ignore
-  chat.innerHTML = result;
+  @state()
+  private _channel = this._peerConnection.createDataChannel('bell')
+
+  private async _turnOnViewerVideo() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: true,
+    });
+    this._clients[0] = { ...this._clients[0], stream },
+    this.requestUpdate()
+
+    const tracks = stream.getTracks()
+    tracks.forEach((track) => this._peerConnection.addTrack(track, stream))
+  }
+
+  private _turnOffViewerVideo() {
+    if (!this._clients[0].stream) return
+
+    this._clients[0].stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    console.log(this._channel)
+    this._peerConnection.ondatachannel = (e) => {
+      this._channel = e.channel
+
+      this._channel.onopen = () => {
+        console.log("channel open");
+      };
+
+      this._channel.onmessage = (e) => {
+        console.log("message:", e.data);
+        // messages.push(e.data);
+        // render();
+      };
+
+      console.log('channel changed', this._channel)
+    }
+  }
+
+  render() {
+    return html`
+      <button @click=${this._turnOnViewerVideo}>Turn on my camera</button>
+      <button @click=${this._turnOffViewerVideo}>Turn off my camera</button>
+
+      <div style="display: flex">
+        ${repeat(this._clients, (client) => client.id, (client) => html`
+          <my-view .client=${client}></my-view>
+        `)}
+      </div>
+
+      <bell-webrtc .peerConnection=${this._peerConnection} .channel=${this._channel}></bell-webrtc>
+
+      <bell-stats .peerConnection=${this._peerConnection}></bell-stats>
+
+      <bell-chat .peerConnection=${this._peerConnection} .channel=${this._channel}></bell-chat>
+    `
+  }
 }
