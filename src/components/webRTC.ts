@@ -1,41 +1,42 @@
 import { LitElement, html } from "lit";
-import { customElement, query, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
 @customElement('bell-webrtc')
 export class WebRTC extends LitElement {
+  @property({ type: Object })
+  peerConnection?: RTCPeerConnection
 
-  peerConnection = new RTCPeerConnection({
-    iceServers: [
-      { urls: "TURN:freeturn.net:3478", username: "free", credential: "free" }
-    ]
-  });
-
-  @state()
-  private _dataChannel: RTCDataChannel
+  @property({ type: Object })
+  channel?: RTCDataChannel
 
   @state()
-  private _token: string
+  private _token?: RTCSessionDescriptionInit
 
   private async _createOffer() {
-    // TODO: поправить
+    if (!this.peerConnection) return
+
+    // TODO: fix
     this.peerConnection.onicecandidate = async () => {
-      console.log("offer token");
-      console.log(JSON.stringify(this.peerConnection.localDescription));
-  
-      // const en = await this.hashString(JSON.stringify(this.peerConnection.localDescription))
-      // console.log(en)
+      if (!this.peerConnection) return
+
+      console.log("Offer:", this.peerConnection.localDescription);
+
+      const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
+      console.log(encoded)
     };
 
     const offer = await this.peerConnection.createOffer();
     this.peerConnection.setLocalDescription(offer);
   }
 
-  private _setDataChannel(channel: RTCDataChannel) {
-    this._dataChannel = channel
-    this._dataChannel.onopen = () => {
+  private _setDataChannel() {
+    if (!this.channel) return
+
+    // this._dataChannel = channel
+    this.channel.onopen = () => {
       console.log("channel open");
     };
-    this._dataChannel.onmessage = (e) => {
+    this.channel.onmessage = (e) => {
       console.log("message:", e.data);
       // messages.push(e.data);
       // render();
@@ -43,38 +44,43 @@ export class WebRTC extends LitElement {
   }
 
   private _handleButtonOfferClick() {
-    const channel = this.peerConnection.createDataChannel("bell")
-    this._setDataChannel(channel)
+    if (!this.peerConnection) return
+
+    // const channel = this.peerConnection.createDataChannel("bell")
+    this._setDataChannel()
 
     this._createOffer()
   }
 
   private async _handleButtonAccept() {
+    if (!this._token) return
+    if (!this.peerConnection) return
+
     const typeToken = this.shadowRoot?.querySelector('input[name="type"]:checked')?.value
 
     if (typeToken === "offer") {
-      this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(this._token)))
+      this.peerConnection.setRemoteDescription(new RTCSessionDescription(this._token))
 
       this.peerConnection.onicecandidate = () => {
-        console.log("answer token");
-        console.log(JSON.stringify(this.peerConnection.localDescription));
-      };
+        if (!this.peerConnection) return
+        console.log("Answer:", this.peerConnection.localDescription);
 
-      this.peerConnection.ondatachannel = (e) => {
-        this._setDataChannel(e.channel)
+        const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
+        console.log(encoded)
       };
 
       const answer = await this.peerConnection.createAnswer();
       this.peerConnection.setLocalDescription(answer);
     } else {
       this.peerConnection.setRemoteDescription(
-        new RTCSessionDescription(JSON.parse(this._token))
+        new RTCSessionDescription(this._token)
       );
     }
   }
 
   private _handleTextarea(e: Event) {
-    this._token = (e.target as HTMLTextAreaElement).value
+    const { value } = (e.target as HTMLTextAreaElement)
+    this._token = JSON.parse(atob(value))
   }
 
   render() {

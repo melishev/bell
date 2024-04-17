@@ -7,22 +7,10 @@ export class View extends LitElement {
   @property({ type: Object })
   client?: Client;
 
-  @query('#bell-view-video')
-  videoEl: HTMLVideoElement;
-  
-  updated(changedProperties: Map<string | number | symbol, unknown>) {
-    super.updated(changedProperties);
-    if (changedProperties.has('client') && this.client?.stream) {
-      if (this.videoEl) {
-        this.videoEl.srcObject = this.client.stream;
-      }
-    }
-  }
-
   render() {
     return html`
       <p>${ this.client?.name }</p>
-      <video id="bell-view-video" .srcObject=${this.client?.stream} autoplay playsinline></video>
+      <video .srcObject=${this.client?.stream} autoplay playsinline></video>
     `
   }
 
@@ -32,7 +20,7 @@ export class View extends LitElement {
       background: gray;
     }
 
-    #bell-view-video {
+    video {
       width: 100%;
       -webkit-transform: scaleX(-1);
       transform: scaleX(-1);

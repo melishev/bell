@@ -4,6 +4,8 @@ import { repeat } from "lit/directives/repeat.js";
 
 import './components/view'
 import './components/webRTC'
+import './components/stats'
+import './components/chat'
 
 import { Client } from "./types";
 
@@ -15,25 +17,61 @@ export class Main extends LitElement {
     { id: crypto.randomUUID(), name: 'Donatello' },
   ]
 
-  private async _turnViewerVideo() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          width: 1280,
-          height: 720,
-        }
-      });
-      this._clients[0] = { ...this._clients[0], stream }
-      this.requestUpdate()
-    } catch (e) {
-      console.log('🙅🏻‍♂️')
+  @state()
+  private _peerConnection = new RTCPeerConnection({
+    iceServers: [
+      { urls: "TURN:freeturn.net:3478", username: "free", credential: "free" }
+    ]
+  });
+
+  @state()
+  private _channel = this._peerConnection.createDataChannel('bell')
+
+  private async _turnOnViewerVideo() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: true,
+    });
+    this._clients[0] = { ...this._clients[0], stream },
+    this.requestUpdate()
+
+    const tracks = stream.getTracks()
+    tracks.forEach((track) => this._peerConnection.addTrack(track, stream))
+  }
+
+  private _turnOffViewerVideo() {
+    if (!this._clients[0].stream) return
+
+    this._clients[0].stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    console.log(this._channel)
+    this._peerConnection.ondatachannel = (e) => {
+      this._channel = e.channel
+
+      this._channel.onopen = () => {
+        console.log("channel open");
+      };
+
+      this._channel.onmessage = (e) => {
+        console.log("message:", e.data);
+        // messages.push(e.data);
+        // render();
+      };
+
+      console.log('channel changed', this._channel)
     }
   }
 
   render() {
     return html`
-      <button @click=${this._turnViewerVideo}>Turn on my camera</button>
+      <button @click=${this._turnOnViewerVideo}>Turn on my camera</button>
+      <button @click=${this._turnOffViewerVideo}>Turn off my camera</button>
 
       <div style="display: flex">
         ${repeat(this._clients, (client) => client.id, (client) => html`
@@ -41,7 +79,11 @@ export class Main extends LitElement {
         `)}
       </div>
 
-      <bell-webrtc></bell-webrtc>
+      <bell-webrtc .peerConnection=${this._peerConnection} .channel=${this._channel}></bell-webrtc>
+
+      <bell-stats .peerConnection=${this._peerConnection}></bell-stats>
+
+      <bell-chat .peerConnection=${this._peerConnection} .channel=${this._channel}></bell-chat>
     `
   }
 }
