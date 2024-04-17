@@ -1,14 +1,14 @@
-import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
 
 @customElement('bell-stats')
 export class Stats extends LitElement {
   @property({ type: Object })
-  peerConnection: RTCPeerConnection;
+  peerConnection: RTCPeerConnection
 
   @state()
   private _senders: any
-  
+
   senders() {
     console.log(this.peerConnection.getSenders())
     console.log(this.peerConnection)

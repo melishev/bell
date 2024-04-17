@@ -1,5 +1,5 @@
-import { LitElement, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { LitElement, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
 
 @customElement('bell-webrtc')
 export class WebRTC extends LitElement {
@@ -19,14 +19,14 @@ export class WebRTC extends LitElement {
     this.peerConnection.onicecandidate = async () => {
       if (!this.peerConnection) return
 
-      console.log("Offer:", this.peerConnection.localDescription);
+      console.log('Offer:', this.peerConnection.localDescription)
 
       const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
       console.log(encoded)
-    };
+    }
 
-    const offer = await this.peerConnection.createOffer();
-    this.peerConnection.setLocalDescription(offer);
+    const offer = await this.peerConnection.createOffer()
+    this.peerConnection.setLocalDescription(offer)
   }
 
   private _setDataChannel() {
@@ -34,13 +34,13 @@ export class WebRTC extends LitElement {
 
     // this._dataChannel = channel
     this.channel.onopen = () => {
-      console.log("channel open");
-    };
+      console.log('channel open')
+    }
     this.channel.onmessage = (e) => {
-      console.log("message:", e.data);
+      console.log('message:', e.data)
       // messages.push(e.data);
       // render();
-    };
+    }
   }
 
   private _handleButtonOfferClick() {
@@ -56,30 +56,36 @@ export class WebRTC extends LitElement {
     if (!this._token) return
     if (!this.peerConnection) return
 
-    const typeToken = this.shadowRoot?.querySelector('input[name="type"]:checked')?.value
+    const typeToken = this.shadowRoot?.querySelector(
+      'input[name="type"]:checked'
+    )?.value
 
-    if (typeToken === "offer") {
-      this.peerConnection.setRemoteDescription(new RTCSessionDescription(this._token))
+    if (typeToken === 'offer') {
+      this.peerConnection.setRemoteDescription(
+        new RTCSessionDescription(this._token)
+      )
 
       this.peerConnection.onicecandidate = () => {
         if (!this.peerConnection) return
-        console.log("Answer:", this.peerConnection.localDescription);
+        console.log('Answer:', this.peerConnection.localDescription)
 
-        const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
+        const encoded = btoa(
+          JSON.stringify(this.peerConnection.localDescription)
+        )
         console.log(encoded)
-      };
+      }
 
-      const answer = await this.peerConnection.createAnswer();
-      this.peerConnection.setLocalDescription(answer);
+      const answer = await this.peerConnection.createAnswer()
+      this.peerConnection.setLocalDescription(answer)
     } else {
       this.peerConnection.setRemoteDescription(
         new RTCSessionDescription(this._token)
-      );
+      )
     }
   }
 
   private _handleTextarea(e: Event) {
-    const { value } = (e.target as HTMLTextAreaElement)
+    const { value } = e.target as HTMLTextAreaElement
     this._token = JSON.parse(atob(value))
   }
 
