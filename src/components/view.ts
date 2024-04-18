@@ -1,15 +1,15 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { Client } from '../types';
+import { Client } from '../types'
 
 @customElement('my-view')
 export class View extends LitElement {
   @property({ type: Object })
-  client?: Client;
+  client?: Client
 
   render() {
     return html`
-      <p>${ this.client?.name }</p>
+      <p>${this.client?.name}</p>
       <video .srcObject=${this.client?.stream} autoplay playsinline></video>
     `
   }
