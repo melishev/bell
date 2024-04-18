@@ -21,7 +21,10 @@ export class WebRTC extends LitElement {
 
       console.log('Offer:', this.peerConnection.localDescription)
 
-      const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
+      const encoded = LZString.compressToBase64(
+        JSON.stringify(this.peerConnection.localDescription)
+      )
+
       console.log(encoded)
     }
 
@@ -46,9 +49,10 @@ export class WebRTC extends LitElement {
         if (!this.peerConnection) return
         console.log('Answer:', this.peerConnection.localDescription)
 
-        const encoded = btoa(
+        const encoded = LZString.compressToBase64(
           JSON.stringify(this.peerConnection.localDescription)
         )
+
         console.log(encoded)
       }
 
@@ -63,7 +67,7 @@ export class WebRTC extends LitElement {
 
   private _handleTextarea(e: Event) {
     const { value } = e.target as HTMLTextAreaElement
-    this._token = JSON.parse(atob(value))
+    this._token = JSON.parse(LZString.decompressFromBase64(value))
   }
 
   render() {
