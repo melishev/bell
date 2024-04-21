@@ -37,6 +37,11 @@ export class Main extends LitElement {
 
     const tracks = stream.getTracks()
     tracks.forEach((track) => this._peerConnection.addTrack(track, stream))
+
+    this._peerConnection.ontrack = (e) => {
+      this._clients[1] = { ...this._clients[1], stream: e.streams[0] }
+      this.requestUpdate()
+    }
   }
 
   private _turnOffViewerVideo() {
@@ -45,27 +50,6 @@ export class Main extends LitElement {
     this._clients[0].stream.getTracks().forEach((track) => {
       track.stop()
     })
-  }
-
-  connectedCallback() {
-    super.connectedCallback()
-
-    console.log(this._channel)
-    this._peerConnection.ondatachannel = (e) => {
-      this._channel = e.channel
-
-      this._channel.onopen = () => {
-        console.log('channel open')
-      }
-
-      this._channel.onmessage = (e) => {
-        console.log('message:', e.data)
-        // messages.push(e.data);
-        // render();
-      }
-
-      console.log('channel changed', this._channel)
-    }
   }
 
   render() {
@@ -86,11 +70,10 @@ export class Main extends LitElement {
         .channel=${this._channel}
       ></bell-webrtc>
 
-      <bell-stats .peerConnection=${this._peerConnection}></bell-stats>
-
       <bell-chat
         .peerConnection=${this._peerConnection}
         .channel=${this._channel}
+        @update:channel=${(e) => (this._channel = e.detail)}
       ></bell-chat>
     `
   }

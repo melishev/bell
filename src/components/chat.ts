@@ -1,14 +1,14 @@
-import { LitElement, html } from 'lit'
+import { LitElement, PropertyValueMap, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 
 @customElement('bell-chat')
 export class Chat extends LitElement {
   @property({ type: Object })
-  peerConnection?: RTCPeerConnection
+  readonly peerConnection?: RTCPeerConnection
 
   @property({ type: Object })
-  channel?: RTCDataChannel
+  readonly channel?: RTCDataChannel
 
   @state()
   private _messages: string[] = []
@@ -30,8 +30,58 @@ export class Chat extends LitElement {
     this.requestUpdate()
   }
 
+  protected update(
+    changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+  ): void {
+    if (changedProperties.has('channel') && this.channel) {
+      this.channel.onopen = () => {
+        console.log('channel open')
+      }
+
+      this.channel.onmessage = (e) => {
+        console.log('message:', e.data)
+      }
+    }
+
+    super.update(changedProperties)
+  }
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    console.log(this.channel)
+    if (!this.peerConnection) return
+
+    this.peerConnection.ondatachannel = (e) => {
+      const typeToken = this.shadowRoot?.querySelector(
+        'input[name="way"]:checked'
+      )?.value
+
+      if (typeToken === 'answer') {
+        this.dispatchEvent(
+          new CustomEvent('update:channel', {
+            detail: e.channel,
+            bubbles: true,
+            composed: true,
+          })
+        )
+      }
+    }
+  }
+
   render() {
     return html`
+      <div>
+        <label>
+          <input type="radio" name="way" value="call" checked />
+          call
+        </label>
+        <label>
+          <input type="radio" name="way" value="answer" />
+          answer
+        </label>
+      </div>
+
       <div id="chatWrapper">
         <div id="chat">
           ${repeat(
