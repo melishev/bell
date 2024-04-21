@@ -29,29 +29,6 @@ export class WebRTC extends LitElement {
     this.peerConnection.setLocalDescription(offer)
   }
 
-  private _setDataChannel() {
-    if (!this.channel) return
-
-    // this._dataChannel = channel
-    this.channel.onopen = () => {
-      console.log('channel open')
-    }
-    this.channel.onmessage = (e) => {
-      console.log('message:', e.data)
-      // messages.push(e.data);
-      // render();
-    }
-  }
-
-  private _handleButtonOfferClick() {
-    if (!this.peerConnection) return
-
-    // const channel = this.peerConnection.createDataChannel("bell")
-    this._setDataChannel()
-
-    this._createOffer()
-  }
-
   private async _handleButtonAccept() {
     if (!this._token) return
     if (!this.peerConnection) return
@@ -91,7 +68,7 @@ export class WebRTC extends LitElement {
 
   render() {
     return html`
-      <button @click=${this._handleButtonOfferClick}>Generate Offer</button>
+      <button @click=${this._createOffer}>Generate Offer</button>
 
       <div>
         <label>
@@ -106,14 +83,6 @@ export class WebRTC extends LitElement {
 
       <textarea @input=${this._handleTextarea}></textarea>
       <button @click=${this._handleButtonAccept}>connect</button>
-
-      <div>
-        <div id="chatWrapper">
-          <div id="chat"></div>
-          <input type="text" id="chatText" />
-          <button id="sendMessage">send</button>
-        </div>
-      </div>
     `
   }
 }

@@ -1,5 +1,5 @@
 import { LitElement, css, html } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { Client } from '../types'
 
 @customElement('my-view')
