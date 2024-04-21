@@ -4,7 +4,6 @@ import { repeat } from 'lit/directives/repeat.js'
 
 import './components/view'
 import './components/webRTC'
-import './components/stats'
 import './components/chat'
 
 import { Client } from './types'
