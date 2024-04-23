@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { compressSDP, decompressSDP } from '../shared/lib/crypto'
 
 @customElement('bell-webrtc')
 export class WebRTC extends LitElement {
@@ -21,8 +22,7 @@ export class WebRTC extends LitElement {
 
       console.log('Offer:', this.peerConnection.localDescription)
 
-      const encoded = btoa(JSON.stringify(this.peerConnection.localDescription))
-      console.log(encoded)
+      console.log(compressSDP(this.peerConnection.localDescription))
     }
 
     const offer = await this.peerConnection.createOffer()
@@ -46,10 +46,7 @@ export class WebRTC extends LitElement {
         if (!this.peerConnection) return
         console.log('Answer:', this.peerConnection.localDescription)
 
-        const encoded = btoa(
-          JSON.stringify(this.peerConnection.localDescription)
-        )
-        console.log(encoded)
+        console.log(compressSDP(this.peerConnection.localDescription))
       }
 
       const answer = await this.peerConnection.createAnswer()
@@ -63,7 +60,7 @@ export class WebRTC extends LitElement {
 
   private _handleTextarea(e: Event) {
     const { value } = e.target as HTMLTextAreaElement
-    this._token = JSON.parse(atob(value))
+    this._token = decompressSDP(value)
   }
 
   render() {
