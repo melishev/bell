@@ -1,6 +1,8 @@
 const { app, Tray, Menu, nativeImage, BrowserWindow } = require('electron');
 const path = require('node:path');
 
+const testWindow = require('./test-window')
+
 let tray = null;
 
 app.on('window-all-closed', e => e.preventDefault() )
@@ -16,6 +18,7 @@ function createTray() {
   tray = new Tray(nativeImage.createFromNamedImage('NSImageNameMobileMe').resize({height: 25}))
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Create new Call', icon: nativeImage.createFromNamedImage('NSImageNameHomeTemplate', [-1, 0, 1]).resize({ height: 20 }), click: ()=>{createModal()} },
+    { label: 'Open Test Window', click: testWindow },
     { type: 'separator' },
     { label: 'Quit', click: ()=>{app.quit()} },
   ])
