@@ -8,86 +8,28 @@ export class Member extends LitElement {
   @property({ type: Object })
   readonly member?: IMember
 
-  @state()
-  private _stream: MediaStream
-
-  async updateStream(constraints: MediaStreamConstraints) {
-    this._stream = await navigator.mediaDevices.getUserMedia(constraints)
-  }
-
-  private async _turnViewerVideoTrack() {
-    if (!this.member) return
-
-    if (this.member.stream) {
-      this.member.stream.getTracks().forEach((track) => {
-        track.stop()
-      })
-    } else {
-      await this.updateStream({ video: true })
-      // this.dispatchEvent(new CustomEvent('update:member', { detail: }))
-      // TODO: послать событие на обновление мембера
-      this.member.stream = this._stream
-      this.requestUpdate()
-
-      const tracks = this._stream.getTracks()
-      console.log(tracks)
-    }
-  }
-
-  /** switch the member's video track */
-  private _turnVideoTrack() {
-    // если это вьюер
-    if (true) {
-      this._turnViewerVideoTrack()
-    } else {
-      this._turnMemberVideoTrack()
-    }
-  }
-
-  // /** switch the member's audio track */
-  // private _turnAudioTrack() {}
-
-  private async _turnOnViewerVideo() {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    })
-    this._clients[0] = { ...this._clients[0], stream }
-    this.requestUpdate()
-
-    const tracks = stream.getTracks()
-    tracks.forEach((track) => this._peerConnection.addTrack(track, stream))
-
-    // this._peerConnection.ontrack = (e) => {
-    //   this._clients[1] = { ...this._clients[1], stream: e.streams[0] }
-    //   this.requestUpdate()
-    // }
-  }
-
-  private _turnOffViewerVideo() {
-    if (!this._clients[0].stream) return
-
-    this._clients[0].stream.getTracks().forEach((track) => {
-      track.stop()
-    })
-  }
-
-  async connectedCallback() {
-    super.connectedCallback()
-
-    console.log(await navigator.mediaDevices.enumerateDevices())
-  }
+  @property({ type: Boolean })
+  readonly viewer: boolean = false
 
   render() {
     return html`
       ${when(
         this.member,
         (member) => html`
-          <p>${member.name}</p>
-          <video .srcObject=${member.stream} autoplay playsinline></video>
+          <div class="member-avatar">
+            <sl-icon class="member-avatar-icon" name="person"></sl-icon>
+          </div>
 
-          <button @click=${this._turnVideoTrack}>Turn on camera</button>
-          <button @click=${this._turnOffViewerVideo}>Turn off camera</button>
+          <video
+            class="member-stream"
+            .srcObject=${member.stream}
+            autoplay
+            playsinline
+            @canplay=${(e) =>
+              this.viewer ? (e.target.muted = true) : undefined}
+          ></video>
+
+          <p class="member-name">${member.name}</p>
         `,
         () => html`<p>oops</p> `
       )}
@@ -96,20 +38,51 @@ export class Member extends LitElement {
 
   static styles = css`
     :host {
-      flex-grow: 1;
-      background: gray;
+      width: 100%;
+      position: relative;
+      background: var(--sl-color-neutral-700);
+      border-radius: var(--sl-border-radius-large);
+      overflow: hidden;
     }
 
-    video {
+    .member-avatar {
       width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      * {
+        font-size: 64px;
+      }
+    }
+
+    .member-stream {
+      width: 100%;
+
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+
       -webkit-transform: scaleX(-1);
       transform: scaleX(-1);
     }
+
+    .member-name {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+
+      padding: 2px 8px;
+      margin: 0;
+      background: var(--sl-overlay-background-color);
+      backdrop-filter: blur(10px);
+
+      font-size: var(--sl-font-size-small);
+
+      color: var(--sl-color-neutral-0);
+    }
   `
 }
-
-// declare global {
-//   interface HTMLElementTagNameMap {
-//     'bell-member': Member
-//   }
-// }
