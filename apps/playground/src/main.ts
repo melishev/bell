@@ -1,18 +1,19 @@
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
-import './style.css'
+import type { IMember } from './types'
 
 import './components/room'
 import './components/webRTC'
 import './components/chat'
 
+// Shoelace
 import '@shoelace-style/shoelace/dist/themes/light.css'
 import '@shoelace-style/shoelace/dist/themes/dark.css'
-
 import '@shoelace-style/shoelace/dist/components/button/button.js'
-
-import type { IMember } from './types'
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+// TODO: temporary solution, as I don't want to drag all existing svg into the build
+setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/') ;
 
 @customElement('bell-main')
 export class Main extends LitElement {
