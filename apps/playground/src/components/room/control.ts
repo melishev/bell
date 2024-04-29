@@ -1,16 +1,14 @@
 import { LitElement, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { IMember } from '../../types'
-
-import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js'
+import { IMember, IViewer } from '../../types'
 
 @customElement('bell-control')
 export class Control extends LitElement {
   @property({ type: Object })
-  readonly viewer?: IMember
+  readonly viewer?: IViewer
 
-  @property({ type: Object })
-  readonly peerConnection?: RTCPeerConnection
+  @property({ type: Array })
+  readonly members?: IMember[]
 
   @state()
   private _constraints: MediaStreamConstraints = {
@@ -19,17 +17,30 @@ export class Control extends LitElement {
   }
 
   private async _updateStream() {
-    const stream = await navigator.mediaDevices.getUserMedia(this._constraints)
-    this.dispatchEvent(
-      new CustomEvent('update:viewer', {
-        composed: true,
-        detail: { ...this.viewer, stream },
-      })
-    )
+    if (!this.viewer) return
+    if (!this.viewer.stream) return
 
-    // TODO:
+    const stream = await navigator.mediaDevices.getUserMedia(this._constraints)
+
     const tracks = stream.getTracks()
-    tracks.forEach((track) => this.peerConnection?.addTrack(track, stream))
+    for (let track of tracks) {
+      this.viewer.stream.addTrack(track)
+
+      // TODO: код, обновления трека при изначальном коннекте с стримом, если изначальный коннект был без стрима, добавит и вызовет onnegotiationneeded
+      if (this.members?.length) {
+        for (let member of this.members) {
+          const senders = member.peerConnection.getSenders()
+
+          if (senders.length) {
+            for (let sender of senders) {
+              sender.replaceTrack(track)
+            }
+          } else {
+            member.peerConnection.addTrack(track, this.viewer.stream)
+          }
+        }
+      }
+    }
   }
 
   private async _turnViewerVideo() {
@@ -37,7 +48,18 @@ export class Control extends LitElement {
 
     if (this.viewer.stream && this._constraints.video) {
       this._constraints = { ...this._constraints, video: false }
-      this.viewer.stream.getVideoTracks().forEach((track) => track.stop())
+      const tracks = this.viewer.stream.getVideoTracks()
+      for (let track of tracks) {
+        track.stop()
+        this.viewer.stream.removeTrack(track)
+
+        // if (this.members?.length) {
+        //   for (let member of this.members) {
+        //     // member.peerConnection.addTrack(track, this.viewer.stream)
+        //     member.peerConnection.removeTrack(track)
+        //   }
+        // }
+      }
       return
     }
 
@@ -50,7 +72,11 @@ export class Control extends LitElement {
 
     if (this.viewer.stream && this._constraints.audio) {
       this._constraints = { ...this._constraints, audio: false }
-      this.viewer.stream.getAudioTracks().forEach((track) => track.stop())
+      const tracks = this.viewer.stream.getAudioTracks()
+      for (let track of tracks) {
+        track.stop()
+        this.viewer.stream.removeTrack(track)
+      }
       return
     }
 
@@ -59,12 +85,8 @@ export class Control extends LitElement {
   }
 
   render() {
-    const enabledVideo = this.viewer?.stream
-      ?.getVideoTracks()
-      .some((track) => track.readyState === 'live')
-    const enabledAudio = this.viewer?.stream
-      ?.getAudioTracks()
-      .some((track) => track.readyState === 'live')
+    const enabledVideo = !!this._constraints.video
+    const enabledAudio = !!this._constraints.audio
 
     return html`
       <sl-icon-button

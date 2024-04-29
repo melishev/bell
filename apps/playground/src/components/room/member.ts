@@ -9,9 +9,29 @@ export class Member extends LitElement {
   readonly member?: IMember
 
   @property({ type: Boolean })
-  readonly viewer: boolean = false
+  readonly isViewer: boolean = false
+
+  connectedCallback() {
+    super.connectedCallback()
+
+    if (this.isViewer) return
+    if (!this.member) return
+
+    this.member.peerConnection.ontrack = (e) => {
+      if (!this.member) return
+
+      this.dispatchEvent(
+        new CustomEvent('update:member', {
+          composed: true,
+          detail: { ...this.member, stream: e.streams[0] },
+        })
+      )
+    }
+  }
 
   render() {
+    const tracks = !!this.member?.stream?.getTracks().length
+
     return html`
       ${when(
         this.member,
@@ -26,8 +46,21 @@ export class Member extends LitElement {
             autoplay
             playsinline
             @canplay=${(e) =>
-              this.viewer ? (e.target.muted = true) : undefined}
+              this.isViewer ? (e.target.muted = true) : undefined}
           ></video>
+
+          <!-- ${when(
+            tracks,
+            () =>
+              html`<video
+                class="member-stream"
+                .srcObject=${member.stream}
+                autoplay
+                playsinline
+                @canplay=${(e) =>
+                  this.isViewer ? (e.target.muted = true) : undefined}
+              ></video>`
+          )} -->
 
           <p class="member-name">${member.name}</p>
         `,
@@ -39,6 +72,7 @@ export class Member extends LitElement {
   static styles = css`
     :host {
       width: 100%;
+      max-width: 50vw;
       position: relative;
       background: var(--sl-color-neutral-700);
       border-radius: var(--sl-border-radius-large);
