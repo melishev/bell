@@ -1,6 +1,6 @@
-const { BrowserWindow } = require('electron')
+import { BrowserWindow } from "electron";
 
-function createModal(){
+export default function createModal(){
   const window = new BrowserWindow({
     width: 300,
     height: 168,
@@ -21,5 +21,3 @@ function createModal(){
 
   // inputModal.webContents.openDevTools();
 }
-
-module.exports = createModal

@@ -1,7 +1,7 @@
-const { app, Tray, Menu, nativeImage, BrowserWindow } = require('electron');
-const path = require('node:path');
+import { app, Tray, Menu, nativeImage, BrowserWindow } from 'electron';
+import path from 'path'
 
-const testWindow = require('./test-window')
+import testWindow from './test-window'
 
 let tray = null;
 
