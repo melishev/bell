@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { IMember } from '../../types'
 import { compressSDP, decompressSDP } from '../../shared/lib/crypto'
 import SlDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
-import { PeerController } from './peer-controller'
+import { PeerController } from './peer.controller'
 
 @customElement('bell-accept-offer')
 export class AcceptOffer extends LitElement {
