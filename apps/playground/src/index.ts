@@ -4,8 +4,8 @@ import { customElement, state } from 'lit/decorators.js'
 import type { IMember, IViewer } from './types'
 
 import './components/room'
-import './components/webrtc2/accept-offer'
-import './components/webrtc2/create-offer'
+import './components/webrtc/accept-offer'
+import './components/webrtc/create-offer'
 import './components/chat'
 
 // Shoelace
