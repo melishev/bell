@@ -9,7 +9,12 @@ app.on('window-all-closed', e => e.preventDefault() )
 
 function createModal(){
   const inputModal = new BrowserWindow({width:500, height:500});
-  inputModal.loadFile(path.join(__dirname, "modal.html"));
+
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    inputModal.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    inputModal.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+  };
 
   inputModal.webContents.openDevTools();
 }

@@ -2,45 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>modal</title>
+    <script type="module" src="/src/renderer/index.ts"></script>
   </head>
   <body>
-    <div style="width: 100%; height: 100%">
-      <button onclick="_turnOnViewerVideo()">Turn on camera</button>
-      <button>Turn off camera</button>
-      <div id="videoContainer"></div>
-    </div>
-    <script>
-      const _clients = [
-        { id: 1, name: 'Leonardo' },
-        { id: 2, name: 'Donatello' },
-      ]
-
-      const videoWrapper = document.getElementById('videoContainer')
-
-      function render() {
-        const result = _clients.reduce((acc, client) => {
-          return `${acc} <div><span>${client.name} - ${client.id}</span> <video id="${client.id}" autoplay playsinline> </video> </div>`
-        }, '')
-
-        videoWrapper.innerHTML = result
-
-        document.getElementById('1').srcObject = _clients[0]?.stream
-      }
-
-      render()
-
-      const _turnOnViewerVideo = async () => {
-        console.log('video')
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: true,
-        })
-        _clients[0] = { ..._clients[0], stream }
-        render()
-      }
-    </script>
-
-    <script type="module" src="/src/renderer.ts"></script>
+    <bell-main></bell-main>
   </body>
 </html>
