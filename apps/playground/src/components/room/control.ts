@@ -29,19 +29,20 @@ export class Control extends LitElement {
       if (this.members?.length) {
         for (let member of this.members) {
           // const senders = member.peerConnection.getSenders()
-          const senders = member.peerController.peerConnection.getSenders()
+          // const senders = member.peerController.peerConnection.getSenders()
 
-          if (senders.length) {
-            for (let sender of senders) {
-              sender.replaceTrack(track)
-            }
-          } else {
-            // member.peerConnection.addTrack(track, this.viewer.stream)
-            member.peerController.peerConnection.addTrack(
-              track,
-              this.viewer.stream
-            )
-          }
+          // if (senders.length) {
+          //   for await (let sender of senders) {
+          //     await sender.replaceTrack(track)
+          //   }
+          // } else {
+          // member.peerConnection.addTrack(track, this.viewer.stream)
+          // member.peerController.peerConnection.addTrack(
+          //   track,
+          //   this.viewer.stream
+          // )
+          member.peerController.addTrackToPeerConnection(stream)
+          // }
         }
       }
     }

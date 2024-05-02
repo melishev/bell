@@ -1,7 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit'
 
 export class PeerController implements ReactiveController {
-  constructor(host: ReactiveControllerHost) {
+  constructor(host: ReactiveControllerHost, viewerStream: MediaStream) {
     this.host = host
 
     this.peerConnection = new RTCPeerConnection({
@@ -17,6 +17,8 @@ export class PeerController implements ReactiveController {
     this.channel = this.peerConnection.createDataChannel('bell')
     this.stream = new MediaStream()
 
+    this.viewerStream = viewerStream
+
     host.addController(this)
   }
 
@@ -26,9 +28,8 @@ export class PeerController implements ReactiveController {
   channel: RTCDataChannel
   stream: MediaStream
 
+  private viewerStream: MediaStream
   private peerController?: PeerController
-  private newPeerConnection?: RTCPeerConnection
-  private newChannel?: RTCDataChannel
 
   private _setupDataChannel() {
     if (!this.peerConnection) return
@@ -43,6 +44,10 @@ export class PeerController implements ReactiveController {
   }
 
   private _setupPeerConnection() {
+    if (this.viewerStream.getTracks().length) {
+      this.addTrackToPeerConnection(this.viewerStream)
+    }
+
     this.peerConnection.onicecandidate = (e) => {
       this.host.requestUpdate()
     }
@@ -52,34 +57,22 @@ export class PeerController implements ReactiveController {
     }
 
     this.peerConnection.ontrack = (e) => {
-      this.stream = e.streams[0]
-      // console.log(e.streams[0].getTracks())
+      // console.log('receive tracks from remote peer')
 
       // this.stream.getTracks().forEach((track) => {
       //   this.stream.removeTrack(track)
       // })
 
-      // e.streams[0].getTracks().forEach((track) => {
-      //   this.stream.addTrack(track)
-      // })
-      // this.stream = e.streams[0]
-      //   this.host.dispatchEvent(
-      //     new CustomEvent('update:member', {
-      //       composed: true,
-      //       detail: { ...this.member, stream: e.streams[0] },
-      //     })
-      //   )
+      e.streams[0].getTracks().forEach((track) => {
+        this.stream.addTrack(track)
+      })
     }
   }
 
-  // private _updatePeerConnection() {
-  //   this.peerConnection =
-  // }
-
-  async addTrackToPeerConnection(stream: MediaStream) {
+  addTrackToPeerConnection(stream: MediaStream) {
     const tracks = stream.getTracks()
 
-    for await (let track of tracks) {
+    for (let track of tracks) {
       this.peerConnection.addTrack(track, stream)
     }
   }
@@ -97,39 +90,33 @@ export class PeerController implements ReactiveController {
   private _autoUpgradePeerConnection() {
     this.peerConnection.onnegotiationneeded = async (e) => {
       console.log('onnegotiationneeded', this.peerConnection.connectionState)
-      if (
-        ['connected', 'connecting'].includes(
-          this.peerConnection.connectionState
-        )
-      ) {
-        this.peerController = new PeerController(this.host)
-        this.newPeerConnection = this.peerController.peerConnection
-        this.newChannel = this.peerController.channel
 
-        this.newPeerConnection.onicecandidate = (e) => {
-          if (this.newPeerConnection?.iceGatheringState === 'complete') {
+      if (['connected'].includes(this.peerConnection.connectionState)) {
+        this.peerController = new PeerController(this.host, this.viewerStream)
+
+        this.peerController.peerConnection.onicecandidate = (e) => {
+          if (
+            this.peerController?.peerConnection.iceGatheringState === 'complete'
+          ) {
             this.channel.send(
-              JSON.stringify(this.newPeerConnection.localDescription)
+              JSON.stringify(
+                this.peerController.peerConnection.localDescription
+              )
             )
           }
         }
 
-        this.newPeerConnection.onconnectionstatechange = (e) => {
-          if (this.newPeerConnection?.connectionState === 'connected') {
+        this.peerController.peerConnection.onconnectionstatechange = (e) => {
+          if (
+            this.peerController?.peerConnection.connectionState === 'connected'
+          ) {
             this.peerConnection.close()
             this._switchPeerConnection()
           }
         }
 
-        // FIXME:
-        if (this.host.viewer?.stream) {
-          await this.peerController.addTrackToPeerConnection(
-            this.host.viewer.stream
-          )
-        }
-
-        const offer = await this.newPeerConnection.createOffer()
-        this.newPeerConnection.setLocalDescription(offer)
+        const offer = await this.peerController.peerConnection.createOffer()
+        this.peerController.peerConnection.setLocalDescription(offer)
       }
     }
 
@@ -137,41 +124,39 @@ export class PeerController implements ReactiveController {
       const SDP = JSON.parse(e.data)
 
       if (SDP.type === 'offer') {
-        this.peerController = new PeerController(this.host)
-        this.newPeerConnection = this.peerController.peerConnection
-        this.newChannel = this.peerController.channel
+        this.peerController = new PeerController(this.host, this.viewerStream)
 
-        this.newPeerConnection.onicecandidate = (e) => {
-          if (this.newPeerConnection?.iceGatheringState === 'complete') {
+        this.peerController.peerConnection.onicecandidate = (e) => {
+          if (
+            this.peerController?.peerConnection.iceGatheringState === 'complete'
+          ) {
             this.channel.send(
-              JSON.stringify(this.newPeerConnection.localDescription)
+              JSON.stringify(
+                this.peerController.peerConnection.localDescription
+              )
             )
           }
         }
 
-        this.newPeerConnection.onconnectionstatechange = (e) => {
-          if (this.newPeerConnection?.connectionState === 'connected') {
+        this.peerController.peerConnection.onconnectionstatechange = (e) => {
+          if (
+            this.peerController?.peerConnection.connectionState === 'connected'
+          ) {
             this.peerConnection.close()
             this._switchPeerConnection()
           }
         }
 
-        if (this.host.viewer?.stream) {
-          await this.peerController.addTrackToPeerConnection(
-            this.host.viewer.stream
-          )
-        }
-
-        this.newPeerConnection.setRemoteDescription(
+        this.peerController.peerConnection.setRemoteDescription(
           new RTCSessionDescription(SDP)
         )
 
-        const answer = await this.newPeerConnection.createAnswer()
-        this.newPeerConnection.setLocalDescription(answer)
+        const answer = await this.peerController.peerConnection.createAnswer()
+        this.peerController.peerConnection.setLocalDescription(answer)
       }
 
       if (SDP.type === 'answer') {
-        this.newPeerConnection.setRemoteDescription(
+        this.peerController?.peerConnection.setRemoteDescription(
           new RTCSessionDescription(SDP)
         )
       }
