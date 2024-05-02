@@ -1,42 +1,37 @@
 import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
-import type { IMember } from './types'
+import type { IMember, IViewer } from './types'
 
 import './components/room'
-import './components/webRTC'
+import './components/webrtc/accept-offer'
+import './components/webrtc/create-offer'
 import './components/chat'
 
 // Shoelace
 import '@shoelace-style/shoelace/dist/themes/light.css'
 import '@shoelace-style/shoelace/dist/themes/dark.css'
 import '@shoelace-style/shoelace/dist/components/button/button.js'
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+import '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
+import '@shoelace-style/shoelace/dist/components/textarea/textarea.js'
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js'
+
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 // TODO: temporary solution, as I don't want to drag all existing svg into the build
-setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/') ;
+setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/')
 
 @customElement('bell-main')
 export class Main extends LitElement {
   @state()
-  private _viewer: IMember = {
+  private _viewer: IViewer = {
     id: crypto.randomUUID(),
     name: 'Me',
+    stream: new MediaStream(),
   }
 
+  // TODO: переделать в Map
   @state()
-  private _members: IMember[] = [
-    { id: crypto.randomUUID(), name: 'Someone else' },
-  ]
-
-  @state()
-  private _peerConnection = new RTCPeerConnection({
-    iceServers: [
-      { urls: 'TURN:freeturn.net:3478', username: 'free', credential: 'free' },
-    ],
-  })
-
-  @state()
-  private _channel = this._peerConnection.createDataChannel('bell')
+  private _members: IMember[] = []
 
   private _handleUpdateViewer(e) {
     this._viewer = e.detail
@@ -51,21 +46,19 @@ export class Main extends LitElement {
       <bell-room
         .viewer=${this._viewer}
         .members=${this._members}
-        .peerConnection=${this._peerConnection}
-        @update:viewer=${this._handleUpdateViewer}
         @update:members=${this._handleUpdateMembers}
       ></bell-room>
 
-      <bell-webrtc
-        .peerConnection=${this._peerConnection}
-        .channel=${this._channel}
-      ></bell-webrtc>
-
-      <bell-chat
-        .peerConnection=${this._peerConnection}
-        .channel=${this._channel}
-        @update:channel=${(e) => (this._channel = e.detail)}
-      ></bell-chat>
+      <bell-create-offer
+        .viewer=${this._viewer}
+        .members=${this._members}
+        @update:members=${this._handleUpdateMembers}
+      ></bell-create-offer>
+      <bell-accept-offer
+        .viewer=${this._viewer}
+        .members=${this._members}
+        @update:members=${this._handleUpdateMembers}
+      ></bell-accept-offer>
     `
   }
 }

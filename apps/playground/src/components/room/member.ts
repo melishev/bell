@@ -1,15 +1,15 @@
 import { LitElement, css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
-import { IMember } from '../../types'
+import { customElement, property } from 'lit/decorators.js'
+import { IMember, IViewer } from '../../types'
 import { when } from 'lit/directives/when.js'
 
 @customElement('bell-member')
 export class Member extends LitElement {
   @property({ type: Object })
-  readonly member?: IMember
+  readonly member?: IMember | IViewer
 
   @property({ type: Boolean })
-  readonly viewer: boolean = false
+  readonly isViewer: boolean = false
 
   render() {
     return html`
@@ -22,11 +22,14 @@ export class Member extends LitElement {
 
           <video
             class="member-stream"
-            .srcObject=${member.stream}
+            .srcObject=${this.isViewer
+              ? member.stream
+              : member.peerController.stream}
             autoplay
             playsinline
+            disablepictureinpicture
             @canplay=${(e) =>
-              this.viewer ? (e.target.muted = true) : undefined}
+              this.isViewer ? (e.target.muted = true) : undefined}
           ></video>
 
           <p class="member-name">${member.name}</p>
@@ -39,6 +42,7 @@ export class Member extends LitElement {
   static styles = css`
     :host {
       width: 100%;
+      max-width: 50vw;
       position: relative;
       background: var(--sl-color-neutral-700);
       border-radius: var(--sl-border-radius-large);
