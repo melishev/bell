@@ -14,7 +14,5 @@ An application whose source code is designed to be open and available for anyone
 - open-source and free
 - minimalist and user-friendly application
 
-### Contributors
-
 ### License
 For license details, see [LICENSE](LICENSE).
