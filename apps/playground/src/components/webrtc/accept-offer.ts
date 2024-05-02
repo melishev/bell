@@ -1,5 +1,5 @@
 import { LitElement, html, nothing } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { IMember } from '../../types'
 import { compressSDP, decompressSDP } from '../../shared/lib/crypto'
 import SlDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
@@ -13,16 +13,18 @@ export class AcceptOffer extends LitElement {
   @query('#drawer-accept')
   drawerAccept?: SlDrawer
 
+  @state()
+  peerController?: PeerController
+
   async createNewMember() {
     if (!Array.isArray(this.members)) return
 
-    const peer = new PeerController(this)
-    peer.autoUpgradePeerConnection()
+    this.peerController = new PeerController(this)
 
     const member: IMember = {
       id: crypto.randomUUID(),
       name: `Someone else #${this.members.length + 1}`,
-      peerConnection: peer.peerConnection!,
+      peerController: this.peerController,
     }
 
     const updatedMembers = [...this.members]
@@ -34,8 +36,6 @@ export class AcceptOffer extends LitElement {
         detail: updatedMembers,
       })
     )
-
-    return member
   }
 
   async handleClickAcceptOffer() {
@@ -53,12 +53,12 @@ export class AcceptOffer extends LitElement {
     const { value } = e.target as HTMLTextAreaElement
     const offer = decompressSDP(value)
 
-    this.members[0].peerConnection.setRemoteDescription(
+    this.peerController?.peerConnection.setRemoteDescription(
       new RTCSessionDescription(offer)
     )
 
-    const answer = await this.members[0].peerConnection.createAnswer()
-    this.members[0].peerConnection.setLocalDescription(answer)
+    const answer = await this.peerController?.peerConnection.createAnswer()
+    this.peerController?.peerConnection.setLocalDescription(answer)
   }
 
   render() {
@@ -67,8 +67,8 @@ export class AcceptOffer extends LitElement {
       ? html`<sl-textarea
           label="Answer"
           size="small"
-          value=${this.members[0].peerConnection?.localDescription
-            ? compressSDP(this.members[0].peerConnection.localDescription)
+          value=${this.peerController?.peerConnection.localDescription
+            ? compressSDP(this.peerController.peerConnection.localDescription)
             : ''}
           readonly
           help-text="Copy this invitation and send it to your contact"

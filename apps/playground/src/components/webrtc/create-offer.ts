@@ -1,5 +1,5 @@
 import { LitElement, html, nothing } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { IMember } from '../../types'
 import { compressSDP, decompressSDP } from '../../shared/lib/crypto'
 import SlDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
@@ -13,19 +13,21 @@ export class CreateOffer extends LitElement {
   @property({ type: Array })
   readonly members?: IMember[]
 
+  @state()
+  peerController?: PeerController
+
   @query('#drawer-generate')
   drawerGenerate?: SlDrawer
 
   async createNewMember() {
     if (!Array.isArray(this.members)) return
 
-    const peer = new PeerController(this)
-    peer.autoUpgradePeerConnection()
+    this.peerController = new PeerController(this)
 
     const member: IMember = {
       id: crypto.randomUUID(),
       name: `Someone else #${this.members.length + 1}`,
-      peerConnection: peer.peerConnection!,
+      peerController: this.peerController,
     }
 
     const updatedMembers = [...this.members]
@@ -37,29 +39,22 @@ export class CreateOffer extends LitElement {
         detail: updatedMembers,
       })
     )
-
-    return member
   }
 
   async handleClickGenerateOffer() {
     if (!this.drawerGenerate) return
     if (!Array.isArray(this.members)) return
 
-    const member = await this.createNewMember()
+    await this.createNewMember()
 
-    if (!member) return
+    if (!this.peerController) return
 
-    // TODO: если viewer имеет стрим, подождать пока в peer не будут добавлены треки
-    // или можно не подвязывать на это, а просто реализовать механизм апгрейда коннекта
     if (this.viewer?.stream) {
-      const tracks = this.viewer.stream.getTracks()
-      for await (let track of tracks) {
-        member.peerConnection.addTrack(track, this.viewer.stream)
-      }
+      await this.peerController.addTrackToPeerConnection(this.viewer?.stream)
     }
 
-    const offer = await member.peerConnection.createOffer()
-    member.peerConnection.setLocalDescription(offer)
+    const offer = await this.peerController.peerConnection.createOffer()
+    this.peerController.peerConnection.setLocalDescription(offer)
 
     this.drawerGenerate.show()
   }
@@ -70,7 +65,7 @@ export class CreateOffer extends LitElement {
     const { value } = e.target as HTMLTextAreaElement
     const answer = decompressSDP(value)
 
-    this.members[0].peerConnection.setRemoteDescription(
+    this.peerController?.peerConnection.setRemoteDescription(
       new RTCSessionDescription(answer)
     )
 
@@ -83,8 +78,8 @@ export class CreateOffer extends LitElement {
       ? html`<sl-textarea
           label="Offer"
           size="small"
-          value=${this.members[0].peerConnection?.localDescription
-            ? compressSDP(this.members[0].peerConnection.localDescription)
+          value=${this.peerController?.peerConnection.localDescription
+            ? compressSDP(this.peerController.peerConnection.localDescription)
             : ''}
           readonly
           help-text="Copy this invitation and send it to your contact"

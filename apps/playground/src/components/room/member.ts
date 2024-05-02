@@ -1,37 +1,17 @@
 import { LitElement, css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
-import { IMember } from '../../types'
+import { customElement, property } from 'lit/decorators.js'
+import { IMember, IViewer } from '../../types'
 import { when } from 'lit/directives/when.js'
 
 @customElement('bell-member')
 export class Member extends LitElement {
   @property({ type: Object })
-  readonly member?: IMember
+  readonly member?: IMember | IViewer
 
   @property({ type: Boolean })
   readonly isViewer: boolean = false
 
-  connectedCallback() {
-    super.connectedCallback()
-
-    if (this.isViewer) return
-    if (!this.member) return
-
-    this.member.peerConnection.ontrack = (e) => {
-      if (!this.member) return
-
-      this.dispatchEvent(
-        new CustomEvent('update:member', {
-          composed: true,
-          detail: { ...this.member, stream: e.streams[0] },
-        })
-      )
-    }
-  }
-
   render() {
-    const tracks = !!this.member?.stream?.getTracks().length
-
     return html`
       ${when(
         this.member,
@@ -42,25 +22,15 @@ export class Member extends LitElement {
 
           <video
             class="member-stream"
-            .srcObject=${member.stream}
+            .srcObject=${this.isViewer
+              ? member.stream
+              : member.peerController.stream}
             autoplay
             playsinline
+            disablepictureinpicture
             @canplay=${(e) =>
               this.isViewer ? (e.target.muted = true) : undefined}
           ></video>
-
-          <!-- ${when(
-            tracks,
-            () =>
-              html`<video
-                class="member-stream"
-                .srcObject=${member.stream}
-                autoplay
-                playsinline
-                @canplay=${(e) =>
-                  this.isViewer ? (e.target.muted = true) : undefined}
-              ></video>`
-          )} -->
 
           <p class="member-name">${member.name}</p>
         `,

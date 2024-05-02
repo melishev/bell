@@ -26,17 +26,21 @@ export class Control extends LitElement {
     for (let track of tracks) {
       this.viewer.stream.addTrack(track)
 
-      // TODO: код, обновления трека при изначальном коннекте с стримом, если изначальный коннект был без стрима, добавит и вызовет onnegotiationneeded
       if (this.members?.length) {
         for (let member of this.members) {
-          const senders = member.peerConnection.getSenders()
+          // const senders = member.peerConnection.getSenders()
+          const senders = member.peerController.peerConnection.getSenders()
 
           if (senders.length) {
             for (let sender of senders) {
               sender.replaceTrack(track)
             }
           } else {
-            member.peerConnection.addTrack(track, this.viewer.stream)
+            // member.peerConnection.addTrack(track, this.viewer.stream)
+            member.peerController.peerConnection.addTrack(
+              track,
+              this.viewer.stream
+            )
           }
         }
       }
