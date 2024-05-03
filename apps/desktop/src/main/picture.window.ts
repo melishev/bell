@@ -1,7 +1,7 @@
-import { BrowserWindow } from "electron";
+import { BrowserWindow } from 'electron'
 import path from 'path'
 
-export default function createModal(){
+export default function createModal() {
   const window = new BrowserWindow({
     width: 400,
     height: 225,
@@ -11,9 +11,9 @@ export default function createModal(){
     // hasShadow: false,
 
     // resizable: true,
-  });
+  })
 
-  window.setAspectRatio(16/9, {
+  window.setAspectRatio(16 / 9, {
     width: 400,
     height: 225,
   })
@@ -23,16 +23,16 @@ export default function createModal(){
   })
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    window.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    window.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
   } else {
-    window.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
-  };
+    window.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+    )
+  }
 
-  window.webContents.openDevTools();
+  window.webContents.openDevTools()
 
   // window.setAlwaysOnTop(true, 'pop-up-menu')
-  
-  // inputModal.loadFile(path.join(__dirname, "modal.html"));
 
-  // inputModal.webContents.openDevTools();
+  window.webContents.openDevTools()
 }
