@@ -2,11 +2,11 @@ import { LitElement, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 import type { IMember, IViewer } from './types'
+import { createEmptyAudioTrack } from './shared/lib/emptyTrack'
 
 import './components/room'
 import './components/webrtc/accept-offer'
 import './components/webrtc/create-offer'
-import './components/chat'
 
 // Shoelace
 import '@shoelace-style/shoelace/dist/themes/light.css'
@@ -26,16 +26,12 @@ export class Main extends LitElement {
   private _viewer: IViewer = {
     id: crypto.randomUUID(),
     name: 'Me',
-    stream: new MediaStream(),
+    // FIXME: hack prevent infinite load page
+    stream: new MediaStream([createEmptyAudioTrack()]),
   }
 
-  // TODO: переделать в Map
   @state()
   private _members: IMember[] = []
-
-  private _handleUpdateViewer(e) {
-    this._viewer = e.detail
-  }
 
   private _handleUpdateMembers(e) {
     this._members = e.detail
@@ -54,6 +50,7 @@ export class Main extends LitElement {
         .members=${this._members}
         @update:members=${this._handleUpdateMembers}
       ></bell-create-offer>
+
       <bell-accept-offer
         .viewer=${this._viewer}
         .members=${this._members}
