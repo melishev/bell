@@ -70,7 +70,6 @@ export class Member extends LitElement {
       aspect-ratio: 16 / 9;
       object-fit: cover;
 
-      -webkit-transform: scaleX(-1);
       transform: scaleX(-1);
     }
 
