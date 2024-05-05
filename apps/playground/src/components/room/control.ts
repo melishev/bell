@@ -22,28 +22,35 @@ export class Control extends LitElement {
 
     const stream = await navigator.mediaDevices.getUserMedia(this._constraints)
 
-    const tracks = stream.getTracks()
-    for (let track of tracks) {
+    for (let track of this.viewer.stream.getTracks()) {
+      this.viewer.stream.removeTrack(track)
+    }
+
+    for (let track of stream.getTracks()) {
       this.viewer.stream.addTrack(track)
 
-      if (this.members?.length) {
-        for (let member of this.members) {
-          // const senders = member.peerConnection.getSenders()
-          // const senders = member.peerController.peerConnection.getSenders()
+      // if (this.members?.length) {
+      //   for (let member of this.members) {
+      //     // const senders = member.peerConnection.getSenders()
+      //     // const senders = member.peerController.peerConnection.getSenders()
+      //     // if (senders.length) {
+      //     //   for await (let sender of senders) {
+      //     //     await sender.replaceTrack(track)
+      //     //   }
+      //     // } else {
+      //     // member.peerConnection.addTrack(track, this.viewer.stream)
+      //     // member.peerController.peerConnection.addTrack(
+      //     //   track,
+      //     //   this.viewer.stream
+      //     // )
+      //     // }
+      //   }
+      // }
+    }
 
-          // if (senders.length) {
-          //   for await (let sender of senders) {
-          //     await sender.replaceTrack(track)
-          //   }
-          // } else {
-          // member.peerConnection.addTrack(track, this.viewer.stream)
-          // member.peerController.peerConnection.addTrack(
-          //   track,
-          //   this.viewer.stream
-          // )
-          member.peerController.addTrackToPeerConnection(stream)
-          // }
-        }
+    if (this.members?.length) {
+      for (let member of this.members) {
+        member.peerController.addTrackToPeerConnection()
       }
     }
   }

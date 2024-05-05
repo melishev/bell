@@ -4,17 +4,6 @@ export class PeerController implements ReactiveController {
   constructor(host: ReactiveControllerHost, viewerStream: MediaStream) {
     this.host = host
 
-    this.peerConnection = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        // {
-        //   urls: 'TURN:freeturn.net:3478',
-        //   username: 'free',
-        //   credential: 'free',
-        // },
-      ],
-    })
-    this.channel = this.peerConnection.createDataChannel('bell')
     this.stream = new MediaStream()
 
     this.viewerStream = viewerStream
@@ -24,99 +13,110 @@ export class PeerController implements ReactiveController {
 
   host: ReactiveControllerHost
 
-  peerConnection: RTCPeerConnection
-  channel: RTCDataChannel
+  peerConnection!: RTCPeerConnection
+  channel!: RTCDataChannel
   stream: MediaStream
 
   private viewerStream: MediaStream
-  private peerController?: PeerController
 
-  private _setupDataChannel() {
-    if (!this.peerConnection) return
+  private peerConnection2?: RTCPeerConnection
+  private channel2?: RTCDataChannel
 
-    this.channel.onopen = (e) => {
+  private _setupDataChannel(pc: RTCPeerConnection): RTCDataChannel {
+    const channel = pc.createDataChannel('bell')
+
+    channel.onopen = (e) => {
       console.log('channel open', e)
     }
 
-    this.channel.onmessage = (e) => {
+    channel.onmessage = (e) => {
       console.log('message:', e.data)
     }
+
+    return channel
   }
 
-  private _setupPeerConnection() {
+  private _setupPeerConnection(): RTCPeerConnection {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        {
+          urls: 'TURN:freeturn.net:3478',
+          username: 'free',
+          credential: 'free',
+        },
+      ],
+    })
+
     if (this.viewerStream.getTracks().length) {
-      this.addTrackToPeerConnection(this.viewerStream)
+      this.addTrackToPeerConnection(pc)
     }
 
-    this.peerConnection.onicecandidate = (e) => {
+    pc.onicecandidate = (e) => {
       this.host.requestUpdate()
     }
 
-    this.peerConnection.ondatachannel = (e) => {
+    pc.ondatachannel = (e) => {
       this.channel = e.channel
     }
 
-    this.peerConnection.ontrack = (e) => {
-      // console.log('receive tracks from remote peer')
+    pc.ontrack = (e) => {
+      for (let track of this.stream.getTracks()) {
+        this.stream.removeTrack(track)
+      }
 
-      // this.stream.getTracks().forEach((track) => {
-      //   this.stream.removeTrack(track)
-      // })
-
-      e.streams[0].getTracks().forEach((track) => {
+      for (let track of e.streams[0].getTracks()) {
         this.stream.addTrack(track)
-      })
+      }
     }
+
+    return pc
   }
 
-  addTrackToPeerConnection(stream: MediaStream) {
-    const tracks = stream.getTracks()
-
-    for (let track of tracks) {
-      this.peerConnection.addTrack(track, stream)
+  addTrackToPeerConnection(pc?: RTCPeerConnection) {
+    for (let track of this.viewerStream.getTracks()) {
+      ;(pc || this.peerConnection).addTrack(track, this.viewerStream)
     }
   }
 
   private _switchPeerConnection() {
-    if (!this.peerController) return
+    if (!(this.peerConnection2 && this.channel2)) return
 
-    this.peerConnection = this.peerController.peerConnection
-    this.peerController.stream.getTracks().forEach((track) => {
-      this.stream.addTrack(track)
-    })
+    this.peerConnection.close()
+    this.channel.close()
+
+    this.peerConnection = this.peerConnection2
+    this.channel = this.channel2
+
+    delete this.peerConnection2
+    delete this.channel2
+
+    this._autoUpgradePeerConnection()
   }
 
   /** Method implements the mechanism of automatic connection update according to the scheme PC1 -> PC2 */
   private _autoUpgradePeerConnection() {
     this.peerConnection.onnegotiationneeded = async (e) => {
-      console.log('onnegotiationneeded', this.peerConnection.connectionState)
-
       if (['connected'].includes(this.peerConnection.connectionState)) {
-        this.peerController = new PeerController(this.host, this.viewerStream)
+        this.peerConnection2 = this._setupPeerConnection()
+        this.channel2 = this._setupDataChannel(this.peerConnection2)
 
-        this.peerController.peerConnection.onicecandidate = (e) => {
-          if (
-            this.peerController?.peerConnection.iceGatheringState === 'complete'
-          ) {
+        this.peerConnection2.onicecandidate = (e) => {
+          if (this.peerConnection2?.iceGatheringState === 'complete') {
             this.channel.send(
-              JSON.stringify(
-                this.peerController.peerConnection.localDescription
-              )
+              JSON.stringify(this.peerConnection2.localDescription)
             )
           }
         }
 
-        this.peerController.peerConnection.onconnectionstatechange = (e) => {
-          if (
-            this.peerController?.peerConnection.connectionState === 'connected'
-          ) {
-            this.peerConnection.close()
+        this.peerConnection2.onconnectionstatechange = (e) => {
+          if (this.peerConnection2?.connectionState === 'connected') {
             this._switchPeerConnection()
           }
         }
 
-        const offer = await this.peerController.peerConnection.createOffer()
-        this.peerController.peerConnection.setLocalDescription(offer)
+        const offer = await this.peerConnection2.createOffer()
+        this.peerConnection2.setLocalDescription(offer)
       }
     }
 
@@ -124,39 +124,33 @@ export class PeerController implements ReactiveController {
       const SDP = JSON.parse(e.data)
 
       if (SDP.type === 'offer') {
-        this.peerController = new PeerController(this.host, this.viewerStream)
+        this.peerConnection2 = this._setupPeerConnection()
+        this.channel2 = this._setupDataChannel(this.peerConnection2)
 
-        this.peerController.peerConnection.onicecandidate = (e) => {
-          if (
-            this.peerController?.peerConnection.iceGatheringState === 'complete'
-          ) {
+        this.peerConnection2.onicecandidate = (e) => {
+          if (this.peerConnection2?.iceGatheringState === 'complete') {
             this.channel.send(
-              JSON.stringify(
-                this.peerController.peerConnection.localDescription
-              )
+              JSON.stringify(this.peerConnection2.localDescription)
             )
           }
         }
 
-        this.peerController.peerConnection.onconnectionstatechange = (e) => {
-          if (
-            this.peerController?.peerConnection.connectionState === 'connected'
-          ) {
-            this.peerConnection.close()
+        this.peerConnection2.onconnectionstatechange = (e) => {
+          if (this.peerConnection2?.connectionState === 'connected') {
             this._switchPeerConnection()
           }
         }
 
-        this.peerController.peerConnection.setRemoteDescription(
+        this.peerConnection2.setRemoteDescription(
           new RTCSessionDescription(SDP)
         )
 
-        const answer = await this.peerController.peerConnection.createAnswer()
-        this.peerController.peerConnection.setLocalDescription(answer)
+        const answer = await this.peerConnection2.createAnswer()
+        this.peerConnection2.setLocalDescription(answer)
       }
 
       if (SDP.type === 'answer') {
-        this.peerController?.peerConnection.setRemoteDescription(
+        this.peerConnection2?.setRemoteDescription(
           new RTCSessionDescription(SDP)
         )
       }
@@ -165,8 +159,8 @@ export class PeerController implements ReactiveController {
 
   hostConnected() {
     // When the host is connected
-    this._setupPeerConnection()
-    this._setupDataChannel()
+    this.peerConnection = this._setupPeerConnection()
+    this.channel = this._setupDataChannel(this.peerConnection)
 
     this._autoUpgradePeerConnection()
   }

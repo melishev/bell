@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from 'lit'
+import { LitElement, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { IMember, IViewer } from '../../types'
 import { compressSDP, decompressSDP } from '../../shared/lib/crypto'
