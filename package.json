@@ -12,12 +12,13 @@
     "format:check": "nx run-many --target=format:check --all"
   },
   "devDependencies": {
+    "@eslint/js": "^9.2.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "globals": "^15.0.0",
-    "prettier": "3.2.5",
-    "typescript": "^5.2.2",
-    "typescript-eslint": "^7.7.0",
-    "nx": "19.0.2"
+    "eslint-plugin-wc": "^2.1.0",
+    "nx": "19.0.2",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.8.0"
   }
 }
