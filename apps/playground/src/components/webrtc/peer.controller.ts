@@ -52,7 +52,7 @@ export class PeerController implements ReactiveController {
       this.addTrackToPeerConnection(pc)
     }
 
-    pc.onicecandidate = (e) => {
+    pc.onicecandidate = () => {
       this.host.requestUpdate()
     }
 
@@ -61,11 +61,11 @@ export class PeerController implements ReactiveController {
     }
 
     pc.ontrack = (e) => {
-      for (let track of this.stream.getTracks()) {
+      for (const track of this.stream.getTracks()) {
         this.stream.removeTrack(track)
       }
 
-      for (let track of e.streams[0].getTracks()) {
+      for (const track of e.streams[0].getTracks()) {
         this.stream.addTrack(track)
       }
     }
@@ -74,7 +74,7 @@ export class PeerController implements ReactiveController {
   }
 
   addTrackToPeerConnection(pc?: RTCPeerConnection) {
-    for (let track of this.viewerStream.getTracks()) {
+    for (const track of this.viewerStream.getTracks()) {
       ;(pc || this.peerConnection).addTrack(track, this.viewerStream)
     }
   }
@@ -96,12 +96,12 @@ export class PeerController implements ReactiveController {
 
   /** Method implements the mechanism of automatic connection update according to the scheme PC1 -> PC2 */
   private _autoUpgradePeerConnection() {
-    this.peerConnection.onnegotiationneeded = async (e) => {
+    this.peerConnection.onnegotiationneeded = async () => {
       if (['connected'].includes(this.peerConnection.connectionState)) {
         this.peerConnection2 = this._setupPeerConnection()
         this.channel2 = this._setupDataChannel(this.peerConnection2)
 
-        this.peerConnection2.onicecandidate = (e) => {
+        this.peerConnection2.onicecandidate = () => {
           if (this.peerConnection2?.iceGatheringState === 'complete') {
             this.channel.send(
               JSON.stringify(this.peerConnection2.localDescription)
@@ -109,7 +109,7 @@ export class PeerController implements ReactiveController {
           }
         }
 
-        this.peerConnection2.onconnectionstatechange = (e) => {
+        this.peerConnection2.onconnectionstatechange = () => {
           if (this.peerConnection2?.connectionState === 'connected') {
             this._switchPeerConnection()
           }
@@ -127,7 +127,7 @@ export class PeerController implements ReactiveController {
         this.peerConnection2 = this._setupPeerConnection()
         this.channel2 = this._setupDataChannel(this.peerConnection2)
 
-        this.peerConnection2.onicecandidate = (e) => {
+        this.peerConnection2.onicecandidate = () => {
           if (this.peerConnection2?.iceGatheringState === 'complete') {
             this.channel.send(
               JSON.stringify(this.peerConnection2.localDescription)
@@ -135,7 +135,7 @@ export class PeerController implements ReactiveController {
           }
         }
 
-        this.peerConnection2.onconnectionstatechange = (e) => {
+        this.peerConnection2.onconnectionstatechange = () => {
           if (this.peerConnection2?.connectionState === 'connected') {
             this._switchPeerConnection()
           }

@@ -22,11 +22,11 @@ export class Control extends LitElement {
 
     const stream = await navigator.mediaDevices.getUserMedia(this._constraints)
 
-    for (let track of this.viewer.stream.getTracks()) {
+    for (const track of this.viewer.stream.getTracks()) {
       this.viewer.stream.removeTrack(track)
     }
 
-    for (let track of stream.getTracks()) {
+    for (const track of stream.getTracks()) {
       this.viewer.stream.addTrack(track)
 
       // if (this.members?.length) {
@@ -49,7 +49,7 @@ export class Control extends LitElement {
     }
 
     if (this.members?.length) {
-      for (let member of this.members) {
+      for (const member of this.members) {
         member.peerController.addTrackToPeerConnection()
       }
     }
@@ -61,7 +61,7 @@ export class Control extends LitElement {
     if (this.viewer.stream && this._constraints.video) {
       this._constraints = { ...this._constraints, video: false }
       const tracks = this.viewer.stream.getVideoTracks()
-      for (let track of tracks) {
+      for (const track of tracks) {
         track.stop()
         this.viewer.stream.removeTrack(track)
 
@@ -85,7 +85,7 @@ export class Control extends LitElement {
     if (this.viewer.stream && this._constraints.audio) {
       this._constraints = { ...this._constraints, audio: false }
       const tracks = this.viewer.stream.getAudioTracks()
-      for (let track of tracks) {
+      for (const track of tracks) {
         track.stop()
         this.viewer.stream.removeTrack(track)
       }
