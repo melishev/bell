@@ -1,15 +1,19 @@
 {
   "name": "desktop",
-  "productName": "desktop",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "private": true,
+  "version": "0.0.0",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "type:check": "tsc",
+    "lint:check": "eslint .",
+    "format:check": "prettier . --check"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
@@ -21,14 +25,5 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "electron": "30.0.3"
-  },
-  "keywords": [],
-  "author": {
-    "name": "Matvey Melishev",
-    "email": "58311421+melishev@users.noreply.github.com"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
   }
 }
