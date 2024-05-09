@@ -24,4 +24,8 @@ dist-ssr
 *.sw?
 
 
+.vite
 .nx/cache
+
+# Electron
+out
