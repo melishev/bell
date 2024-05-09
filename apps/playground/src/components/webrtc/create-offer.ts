@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { IMember, IViewer } from '../../types'
 import { compressSDP, decompressSDP } from '../../shared/lib/crypto'
-import SlDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
+import type SlDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
 import { PeerController } from './peer.controller'
 
 @customElement('bell-create-offer')
