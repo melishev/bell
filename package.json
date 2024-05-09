@@ -6,12 +6,18 @@
   "workspaces": [
     "apps/*"
   ],
+  "scripts": {
+    "type:check": "nx run-many --target=type:check --all",
+    "lint:check": "nx run-many --target=lint:check --all",
+    "format:check": "nx run-many --target=format:check --all"
+  },
   "devDependencies": {
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.0.0",
     "prettier": "3.2.5",
     "typescript": "^5.2.2",
-    "typescript-eslint": "^7.7.0"
+    "typescript-eslint": "^7.7.0",
+    "nx": "19.0.2"
   }
 }
