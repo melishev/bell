@@ -1,4 +1,4 @@
-import { Menu, Tray, app } from 'electron'
+import { Menu, Tray } from 'electron'
 
 import pictureWindow from './picture.window'
 
@@ -34,13 +34,13 @@ export function initSystemTray() {
       icon: '/Users/matvejmelishev/Desktop/bell/apps/desktop/src/assets/UserPlusTemplate@2x.png',
     },
   ]
-  const contacts1 = [
-    {
-      label: 'Contacts',
-      type: 'submenu',
-      submenu: contacts,
-    },
-  ]
+  // const contacts1 = [
+  //   {
+  //     label: 'Contacts',
+  //     type: 'submenu',
+  //     submenu: contacts,
+  //   },
+  // ]
 
   const contacts2 = [{ label: 'Contacts', enabled: false }, ...contacts]
 

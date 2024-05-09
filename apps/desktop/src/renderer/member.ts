@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit' // TODO: добавить LIT в зависимости проекта
-import { customElement, state, property } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { IMember, IViewer } from './types'
 
