@@ -1,7 +1,7 @@
-import { LitElement, html, css } from 'lit' // TODO: добавить LIT в зависимости проекта
+import { LitElement, html, css } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { IMember, IViewer } from './types'
+import { IMember, IViewer } from '../types'
 
 @customElement('bell-member')
 export class Member extends LitElement {
