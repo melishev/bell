@@ -1,9 +1,11 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, screen } from 'electron'
 import path from 'path'
 
 export function createWindow() {
+  const windowWidth = 400
+
   const window = new BrowserWindow({
-    width: 400,
+    width: windowWidth,
     height: 225,
     frame: false,
     // transparent: true,
@@ -14,6 +16,10 @@ export function createWindow() {
 
     // vibrancy: 'window',
   })
+
+  const display = screen.getPrimaryDisplay()
+  const left = display.bounds.width - windowWidth - 20
+  window.setPosition(left, 0)
 
   window.setAspectRatio(16 / 9, {
     width: 400,
@@ -33,4 +39,6 @@ export function createWindow() {
   }
 
   // window.setAlwaysOnTop(true, 'pop-up-menu')
+
+  return window
 }

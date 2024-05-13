@@ -1,0 +1,17 @@
+* {
+  user-select: none;
+}
+
+:root {
+  font-family: var(--sl-font-sans);
+  /* font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Ubuntu,
+    sans-serif; */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
