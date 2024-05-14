@@ -1,10 +1,9 @@
+import path from 'node:path'
 import { Tray } from 'electron'
 import { createMenuWindow } from './menu.window'
 
 export function initSystemTray() {
-  const tray = new Tray(
-    '/Users/matvejmelishev/Desktop/bell/apps/desktop/src/assets/LogoTemplate@2x.png'
-  )
+  const tray = new Tray(path.resolve('./src/assets/LogoTemplate@2x.png'))
 
   const trayMenuWindow = createMenuWindow()
 
