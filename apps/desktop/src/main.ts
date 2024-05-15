@@ -20,3 +20,7 @@ export function initSystemTray() {
     toggleMenuWindow()
   })
 }
+
+app.on('window-all-closed', (e) => e.preventDefault())
+
+app.on('ready', createTray)

@@ -2,7 +2,7 @@
   "name": "desktop",
   "private": true,
   "version": "0.0.0",
-  "main": ".vite/build/index.js",
+  "main": ".vite/build/main.js",
   "scripts": {
     "dev": "electron-forge start",
     "package": "electron-forge package",
