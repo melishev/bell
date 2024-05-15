@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev:desktop": "nx dev desktop",
+    "dev:playground": "nx dev playground",
     "type:check": "nx run-many --target=type:check --all",
     "lint:check": "nx run-many --target=lint:check --all",
     "format:check": "nx run-many --target=format:check --all"

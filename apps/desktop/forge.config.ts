@@ -28,19 +28,19 @@ const config: ForgeConfig = {
           entry: 'src/main/index.ts',
           config: 'vite.main.config.ts',
         },
-        // {
-        //   entry: 'src/preload.ts',
-        //   config: 'vite.preload.config.ts',
-        // },
+        {
+          entry: 'src/preload.ts',
+          config: 'vite.preload.config.ts',
+        },
       ],
       renderer: [
         {
-          name: 'main_window',
-          config: 'vite.renderer.config.ts',
+          name: 'menu_window',
+          config: 'vite.renderer.menu.config.ts',
         },
         {
-          name: 'menu_window',
-          config: 'vite.renderer-menu.config.ts',
+          name: 'picture_window',
+          config: 'vite.renderer.picture.config.ts',
         },
       ],
     }),

@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { Menu, Tray } from 'electron'
 
-import pictureWindow from './picture.window'
+import { createWindow } from '../picture/main'
 
 export function initSystemTray() {
   /**
@@ -56,7 +56,7 @@ export function initSystemTray() {
       icon: path.resolve('./src/assets/ArrowUpDownTemplate@2x.png'),
     },
     { type: 'separator' },
-    { label: 'Open Test Window', click: pictureWindow },
+    { label: 'Open Test Window', click: createWindow },
     { type: 'separator' },
     { role: 'about' },
     { type: 'separator' },
