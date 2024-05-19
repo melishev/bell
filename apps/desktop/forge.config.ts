@@ -10,6 +10,7 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses'
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    extraResource: ['src/assets/LogoTemplate@2x.png'],
   },
   rebuildConfig: {},
   makers: [
