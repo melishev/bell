@@ -11,6 +11,12 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     extraResource: ['src/assets/LogoTemplate@2x.png'],
+    extendInfo: {
+      NSMicrophoneUsageDescription: 'Please give us access to your microphone',
+      NSCameraUsageDescription: 'Please give us access to your camera',
+      'com.apple.security.device.audio-input': true,
+      'com.apple.security.device.camera': true,
+    },
   },
   rebuildConfig: {},
   makers: [
