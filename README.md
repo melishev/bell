@@ -5,8 +5,8 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/melishev/bell/assets/58311421/5580cfca-f2d9-41e6-ae52-b4f797f09a82" alt="bell">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/melishev/bell/assets/58311421/fa63277f-7328-46b7-93a5-1196dfce4970">
-  <img alt="bell logo" src="https://github.com/melishev/bell/assets/58311421/fa63277f-7328-46b7-93a5-1196dfce4970">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/melishev/bell/assets/58311421/0787c0cd-272f-4cee-a8c9-5bbb80b1e20b">
+  <img alt="bell logo" src="https://github.com/melishev/bell/assets/58311421/0787c0cd-272f-4cee-a8c9-5bbb80b1e20b">
 </picture>
 
 ### Bell is a simple and easy way to contact your friends or colleagues.
