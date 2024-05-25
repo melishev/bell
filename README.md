@@ -4,8 +4,8 @@
 <br />
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/melishev/bell/assets/58311421/5580cfca-f2d9-41e6-ae52-b4f797f09a82" alt="bell">
-  <source media="(prefers-color-scheme: light)" srcset="https://github.com/melishev/bell/assets/58311421/0787c0cd-272f-4cee-a8c9-5bbb80b1e20b">
+  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/melishev/bell/assets/58311421/98fb2639-5720-40b1-9874-dff044c7a93d">
+  <source media="(prefers-color-scheme: light)" srcset="https://github.com/melishev/bell/assets/58311421/3d1bdc44-d746-43bb-a396-65bf4d566333">
   <img alt="bell logo" src="https://github.com/melishev/bell/assets/58311421/0787c0cd-272f-4cee-a8c9-5bbb80b1e20b">
 </picture>
 
