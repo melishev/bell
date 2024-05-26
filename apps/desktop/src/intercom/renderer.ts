@@ -37,10 +37,9 @@ export class Main extends LitElement {
   @state()
   private _callType: 'outgoing' | 'incoming'
 
-  @state()
-  private _currentCallStatus: 'connection' | 'connected' // TODO: можно брать состояние из webrtc
+  // @state()
+  // private _currentCallStatus: 'connection' | 'connected'
 
-  // TODO: при открытии окна, важно учитывать на какой стороне его открывают, исходящей или принимающей
   async connectedCallback(): Promise<void> {
     super.connectedCallback()
 
@@ -138,7 +137,7 @@ export class Main extends LitElement {
 
   static styles = css`
     :host {
-      /* -webkit-app-region: drag; */
+      -webkit-app-region: drag;
 
       position: relative;
       display: block;

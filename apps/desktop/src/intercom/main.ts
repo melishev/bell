@@ -40,11 +40,14 @@ export function createWindow(
     visibleOnFullScreen: true,
   })
 
-  if (PICTURE_WINDOW_VITE_DEV_SERVER_URL) {
-    window.loadURL(PICTURE_WINDOW_VITE_DEV_SERVER_URL)
+  if (INTERCOM_WINDOW_VITE_DEV_SERVER_URL) {
+    window.loadURL(INTERCOM_WINDOW_VITE_DEV_SERVER_URL)
   } else {
     window.loadFile(
-      path.join(__dirname, `../renderer/${PICTURE_WINDOW_VITE_NAME}/index.html`)
+      path.join(
+        __dirname,
+        `../renderer/${INTERCOM_WINDOW_VITE_NAME}/index.html`
+      )
     )
   }
 

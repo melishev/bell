@@ -41,7 +41,7 @@ export class TrayMenu extends LitElement {
   }
 
   private _callToContact(id: string): void {
-    window.electron.openPicture(id)
+    window.electron.openIntercom(id)
   }
 
   private _quit() {

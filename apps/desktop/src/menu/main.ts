@@ -2,7 +2,7 @@
 import { BrowserWindow, app, ipcMain } from 'electron'
 import path from 'node:path'
 
-import { createWindow as createWindowPicture } from '../picture/main'
+import { createWindow as createWindowIntercom } from '../intercom/main'
 import type { WebSocket } from 'ws'
 import { loadData } from '../localDataManager'
 
@@ -71,8 +71,8 @@ export function createWindow(ws: WebSocket) {
   //   // TODO: обработать ответ, что контакт не в сети
   // })
 
-  ipcMain.on('open-picture', (_, id) => {
-    createWindowPicture(ws, id, 'outgoing')
+  ipcMain.on('open-intercom', (_, id) => {
+    createWindowIntercom(ws, id, 'outgoing')
   })
 
   ipcMain.on('quit', () => {

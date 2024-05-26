@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('electron', {
-  openPicture: (id) => ipcRenderer.send('open-picture', id),
+  openIntercom: (id) => ipcRenderer.send('open-intercom', id),
   callToContact: (id) => ipcRenderer.send('call-to-contact', id),
   sendLocalSDP: (value: RTCSessionDescription) =>
     ipcRenderer.send('local-sdp', value),

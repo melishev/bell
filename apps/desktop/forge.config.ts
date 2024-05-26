@@ -50,8 +50,8 @@ const config: ForgeConfig = {
           config: 'vite.renderer.menu.config.ts',
         },
         {
-          name: 'picture_window',
-          config: 'vite.renderer.picture.config.ts',
+          name: 'intercom_window',
+          config: 'vite.renderer.intercom.config.ts',
         },
       ],
     }),

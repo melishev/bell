@@ -1,5 +1,5 @@
 import WebSocket from 'ws'
-import { createWindow as createWindowPicture } from './picture/main' // FIXME:
+import { createWindow as createWindowIntercom } from './intercom/main' // FIXME:
 
 export function initializeWebSocket(localData) {
   let ws: WebSocket
@@ -26,7 +26,12 @@ export function initializeWebSocket(localData) {
       // пользователю пришел звонок, необходимо открыть окно, и спросить, принимает он звонок или нет
       // положить полученный sdp в remote, сгенерить ответ, отправить на сервер
       if ('eventName' in message && message.eventName === 'receiveOffer') {
-        createWindowPicture(ws, message.data.from, 'incoming', message.data.sdp)
+        createWindowIntercom(
+          ws,
+          message.data.from,
+          'incoming',
+          message.data.sdp
+        )
       }
     })
 
