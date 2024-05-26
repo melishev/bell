@@ -1,7 +1,14 @@
-import { BrowserWindow, screen } from 'electron'
+import { BrowserWindow, screen, ipcMain } from 'electron'
 import path from 'path'
+import type { WebSocket } from 'ws'
 
-export function createWindow() {
+// TODO: нельзя что бы это окно было открыто дважды !!!
+export function createWindow(
+  ws: WebSocket,
+  id: string,
+  type: 'outgoing' | 'incoming',
+  remoteSDP?: RTCSessionDescription
+) {
   const windowWidth = 400
 
   const window = new BrowserWindow({
@@ -15,6 +22,9 @@ export function createWindow() {
     skipTaskbar: true,
 
     // vibrancy: 'window',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   })
 
   const display = screen.getPrimaryDisplay()
@@ -37,6 +47,28 @@ export function createWindow() {
       path.join(__dirname, `../renderer/${PICTURE_WINDOW_VITE_NAME}/index.html`)
     )
   }
+
+  window.webContents.on('did-finish-load', () => {
+    if (remoteSDP) {
+      window.webContents.send('remote-sdp', remoteSDP)
+    }
+    window.webContents.send('type', type)
+  })
+
+  // TODO: нужно получить оффер и передать его в ws вместе с id
+  ipcMain.on('local-sdp', (_, sdp) => {
+    console.log(sdp.type)
+    const eventData = {
+      eventName: sdp.type === 'offer' ? 'offer' : 'answer',
+      data: {
+        to: id,
+        sdp: sdp,
+      },
+    }
+    ws.send(JSON.stringify(eventData))
+
+    // dialog.showErrorBox('hello', 'sdsds')
+  })
 
   // window.setAlwaysOnTop(true, 'pop-up-menu')
 

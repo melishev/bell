@@ -14,11 +14,13 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
-    "lucide": "^0.378.0"
+    "lucide": "^0.378.0",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-dmg": "^7.4.0",
     "@electron-forge/maker-rpm": "^7.4.0",
     "@electron-forge/maker-squirrel": "^7.4.0",
     "@electron-forge/maker-zip": "^7.4.0",
