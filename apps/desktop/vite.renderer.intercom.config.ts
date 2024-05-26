@@ -11,7 +11,7 @@ export default defineConfig((env) => {
   const name = forgeConfigSelf.name ?? ''
 
   return {
-    root: 'src/picture',
+    root: 'src/intercom',
     mode,
     base: './',
     build: {

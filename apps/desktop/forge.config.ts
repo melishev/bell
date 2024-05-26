@@ -3,6 +3,7 @@ import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerRpm } from '@electron-forge/maker-rpm'
+import { MakerDMG } from '@electron-forge/maker-dmg'
 import { VitePlugin } from '@electron-forge/plugin-vite'
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
@@ -26,6 +27,7 @@ const config: ForgeConfig = {
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),
+    new MakerDMG({}),
   ],
   plugins: [
     new VitePlugin({
@@ -34,7 +36,7 @@ const config: ForgeConfig = {
       build: [
         {
           // `entry` is just an alias for `build.lib.entry` in the corresponding file of `config`.
-          entry: 'src/main/index.ts',
+          entry: 'src/main.ts',
           config: 'vite.main.config.ts',
         },
         {
@@ -48,8 +50,8 @@ const config: ForgeConfig = {
           config: 'vite.renderer.menu.config.ts',
         },
         {
-          name: 'picture_window',
-          config: 'vite.renderer.picture.config.ts',
+          name: 'intercom_window',
+          config: 'vite.renderer.intercom.config.ts',
         },
       ],
     }),

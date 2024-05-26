@@ -7,8 +7,8 @@ declare global {
   const MENU_WINDOW_VITE_DEV_SERVER_URL: string
   const MENU_WINDOW_VITE_NAME: string
 
-  const PICTURE_WINDOW_VITE_DEV_SERVER_URL: string
-  const PICTURE_WINDOW_VITE_NAME: string
+  const INTERCOM_WINDOW_VITE_DEV_SERVER_URL: string
+  const INTERCOM_WINDOW_VITE_NAME: string
 
   namespace NodeJS {
     interface Process {

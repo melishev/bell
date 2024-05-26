@@ -1,13 +1,16 @@
-import { BrowserWindow, ipcMain } from 'electron'
+// TODO: расширять окно, при добавлении контактов
+import { BrowserWindow, app, ipcMain } from 'electron'
 import path from 'node:path'
 
-import { createWindow as createPictureWindow } from '../picture/main'
+import { createWindow as createWindowIntercom } from '../intercom/main'
+import type { WebSocket } from 'ws'
+import { loadData } from '../localDataManager'
 
-export function createWindow() {
+export function createWindow(ws: WebSocket) {
   const window = new BrowserWindow({
     show: false,
     width: 300,
-    height: 166,
+    height: 300,
     frame: false,
     resizable: false,
     transparent: true,
@@ -45,8 +48,35 @@ export function createWindow() {
     )
   }
 
-  ipcMain.on('open-picture', () => {
-    createPictureWindow()
+  window.webContents.on('did-finish-load', async () => {
+    const localData = await loadData()
+    console.log(localData)
+    // window.webContents.openDevTools()
+    window.webContents.send('local-data', localData)
+  })
+
+  // ipcMain.on('call-to-contact', (_, contactID) => {
+  //   // TODO: открывать picture in picture, получать оттуда offer -> передавать его в сокеты
+
+  //   const eventData = {
+  //     eventName: 'offer',
+  //     data: {
+  //       to: contactID,
+  //       sdp: '',
+  //     },
+  //   }
+  //   console.log(contactID)
+  //   ws.send(JSON.stringify(eventData))
+
+  //   // TODO: обработать ответ, что контакт не в сети
+  // })
+
+  ipcMain.on('open-intercom', (_, id) => {
+    createWindowIntercom(ws, id, 'outgoing')
+  })
+
+  ipcMain.on('quit', () => {
+    app.quit()
   })
 
   return window

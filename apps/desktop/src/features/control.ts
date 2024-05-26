@@ -12,10 +12,27 @@ export class Control extends LitElement {
   @property({ type: Array })
   readonly members?: IMember[]
 
+  @property({ type: Object })
+  readonly initialConstraints?: MediaStreamConstraints
+
   @state()
   private _constraints: MediaStreamConstraints = {
     video: false,
     audio: false,
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback()
+
+    if (this.initialConstraints) {
+      if (this.initialConstraints.video) {
+        this._turnViewerVideo()
+      }
+
+      if (this.initialConstraints.audio) {
+        this._turnViewerAudio()
+      }
+    }
   }
 
   private async _updateStream() {
@@ -185,7 +202,6 @@ export class Control extends LitElement {
 
   static styles = css`
     :host {
-      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;

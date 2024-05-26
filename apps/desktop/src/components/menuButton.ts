@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js'
 export class MenuButton extends LitElement {
   protected render() {
     return html`
-      <button>
+      <button part="base">
         <slot></slot>
       </button>
     `
