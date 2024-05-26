@@ -7,8 +7,8 @@
     "apps/*"
   ],
   "scripts": {
-    "dev:desktop": "nx dev desktop",
-    "dev:playground": "nx dev playground",
+    "dev:desktop": "nx run-many -t dev -p desktop signalling --output-style=stream",
+    "dev:playground": "nx run-many -t dev -p playground signalling --output-style=stream",
     "type:check": "nx run-many --target=type:check --all",
     "lint:check": "nx run-many --target=lint:check --all",
     "format:check": "nx run-many --target=format:check --all"
