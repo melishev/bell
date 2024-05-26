@@ -9,6 +9,8 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses'
 
 const config: ForgeConfig = {
   packagerConfig: {
+    name: 'bell',
+    icon: 'src/assets/icon/icon',
     asar: true,
     extraResource: ['src/assets/LogoTemplate@2x.png'],
     extendInfo: {
